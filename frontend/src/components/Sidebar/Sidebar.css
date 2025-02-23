@@ -1,0 +1,33 @@
+.sidebar {
+  width: 230px;
+  background: #333;
+  color: #fff;
+  padding: 20px;
+  height: 100vh;
+  position: fixed;
+}
+
+.sidebar-header {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 30px;
+}
+
+.sidebar-list {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar-link {
+  display: block;
+  color: #fff;
+  text-decoration: none;
+  padding: 10px 0;
+  font-size: 18px;
+  font-weight: 500;
+  border-bottom: 1px solid #555;
+}
+
+.sidebar-link:hover {
+  background-color: #444;
+}
