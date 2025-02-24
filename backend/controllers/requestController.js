@@ -37,7 +37,6 @@ const createRequest = async (req, res) => {
   }
 };
 
-
 const updateRequest = async (req, res) => {
   try {
     const request = await Request.findById(req.params.id);
@@ -46,18 +45,29 @@ const updateRequest = async (req, res) => {
     const { status, trackingStatus, isReturned } = req.body;
 
     // Handle stock adjustments for status changes
-    if (status === "Approved" && request.status !== "Approved") {
-      const product = await Product.findById(request.productId);
-      product.stockRemaining -= request.quantity;
-      await product.save();
-    } else if (status !== "Approved" && request.status === "Approved") {
-      const product = await Product.findById(request.productId);
-      product.stockRemaining += request.quantity;
-      await product.save();
+    if (status) {
+      if (status === "Approved" && request.status !== "Approved") {
+        const product = await Product.findById(request.productId);
+        if (request.quantity > product.stockRemaining) {
+          return res.status(400).json({ message: "Requested quantity exceeds available stock" });
+        }
+        product.stockRemaining -= request.quantity;
+        await product.save();
+      } else if (status !== "Approved" && request.status === "Approved") {
+        const product = await Product.findById(request.productId);
+        product.stockRemaining += request.quantity;
+        await product.save();
+      }
     }
 
     // Handle stock restoration for returned items
-    if (isReturned && !request.isReturned && request.isReturnable && request.trackingStatus === "Delivered") {
+    if (
+      isReturned !== undefined && // Only process if isReturned is provided
+      isReturned &&
+      !request.isReturned &&
+      request.isReturnable &&
+      (trackingStatus === "Delivered" || request.trackingStatus === "Delivered")
+    ) {
       const product = await Product.findById(request.productId);
       product.stockRemaining += request.quantity;
       await product.save();
@@ -65,7 +75,11 @@ const updateRequest = async (req, res) => {
 
     const updatedRequest = await Request.findByIdAndUpdate(
       req.params.id,
-      { status, trackingStatus, isReturned },
+      {
+        ...(status && { status }), // Only update status if provided
+        ...(trackingStatus && { trackingStatus }), // Only update trackingStatus if provided
+        ...(isReturned !== undefined && { isReturned }), // Only update isReturned if provided
+      },
       { new: true }
     )
       .populate("userId", "username")
@@ -76,6 +90,5 @@ const updateRequest = async (req, res) => {
     res.status(400).json({ message: "Error updating request", error });
   }
 };
-
 
 module.exports = { getRequests, getUserRequests, createRequest, updateRequest };

@@ -38,19 +38,21 @@ const OrderTracking = () => {
     fetchOrders();
   }, [role, location]);
 
-  const handleStatusUpdate = async (id, value) => {
+  const handleStatusUpdate = async (id, newTrackingStatus) => {
     try {
-      const isReturnedUpdate = value === "Returned";
-      const trackingStatus = isReturnedUpdate ? "Delivered" : value;
-      const isReturned = isReturnedUpdate || (value === "Delivered" && orders.find(o => o._id === id)?.isReturned);
+      const order = orders.find((o) => o._id === id);
+      const isDelivered = newTrackingStatus === "Delivered";
+      const isReturnedUpdate = newTrackingStatus === "Returned";
+      const trackingStatus = isReturnedUpdate ? "Delivered" : newTrackingStatus;
+      const isReturned = isReturnedUpdate ? true : isDelivered ? order.isReturned : false;
 
       await axios.put(
         `http://localhost:5000/api/requests/${id}`,
         { trackingStatus, isReturned },
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
-      const updatedOrders = orders.map((order) =>
-        order._id === id ? { ...order, trackingStatus, isReturned } : order
+      const updatedOrders = orders.map((o) =>
+        o._id === id ? { ...o, trackingStatus, isReturned } : o
       );
       setOrders(updatedOrders);
       setFilteredOrders(updatedOrders);
@@ -85,6 +87,24 @@ const OrderTracking = () => {
       default:
         return <FaBox className="status-icon pending" />;
     }
+  };
+
+  const getTimelineSteps = (order) => {
+    if (!order) return [];
+    const steps = [
+      { status: "Pending", icon: <FaBox className="timeline-icon pending" />, isActive: order.trackingStatus === "Pending", isCompleted: order.trackingStatus },
+      { status: "Shipped", icon: <FaTruck className="timeline-icon shipped" />, isActive: order.trackingStatus === "Shipped", isCompleted: order.trackingStatus === "Delivered" || order.isReturned },
+      { status: "Delivered", icon: <FaCheckCircle className="timeline-icon delivered" />, isActive: order.trackingStatus === "Delivered" && !order.isReturned, isCompleted: order.isReturned },
+    ];
+    if (order.isReturnable) {
+      steps.push({
+        status: "Returned",
+        icon: <FaUndo className="timeline-icon return" />,
+        isActive: order.isReturned,
+        isCompleted: false,
+      });
+    }
+    return steps;
   };
 
   return (
@@ -135,7 +155,7 @@ const OrderTracking = () => {
                       </button>
                       <button
                         onClick={() => handleStatusUpdate(order._id, "Delivered")}
-                        className={`status-btn delivered ${order.trackingStatus === "Delivered" ? "active" : ""}`}
+                        className={`status-btn delivered ${order.trackingStatus === "Delivered" && !order.isReturned ? "active" : ""}`}
                       >
                         Delivered
                       </button>
@@ -177,9 +197,9 @@ const OrderTracking = () => {
                 )}
               </div>
               <div
-                className="tracking-timeline"
+                className={`tracking-timeline ${selectedOrder.isReturnable ? "returnable" : "non-returnable"}`}
                 style={{
-                  '--step-index': selectedOrder
+                  '--step-index': selectedOrder.isReturnable
                     ? selectedOrder.isReturned
                       ? 3
                       : selectedOrder.trackingStatus === "Delivered"
@@ -187,27 +207,22 @@ const OrderTracking = () => {
                       : selectedOrder.trackingStatus === "Shipped"
                       ? 1
                       : 0
+                    : selectedOrder.trackingStatus === "Delivered"
+                    ? 2
+                    : selectedOrder.trackingStatus === "Shipped"
+                    ? 1
                     : 0,
                 }}
               >
-                <div className={`timeline-step ${selectedOrder.trackingStatus === "Pending" ? "active" : selectedOrder.trackingStatus ? "completed" : ""}`}>
-                  <FaBox className="timeline-icon pending" />
-                  <span>Pending</span>
-                </div>
-                <div className={`timeline-step ${selectedOrder.trackingStatus === "Shipped" ? "active" : selectedOrder.trackingStatus === "Delivered" || selectedOrder.isReturned ? "completed" : ""}`}>
-                  <FaTruck className="timeline-icon shipped" />
-                  <span>Shipped</span>
-                </div>
-                <div className={`timeline-step ${selectedOrder.trackingStatus === "Delivered" && !selectedOrder.isReturned ? "active" : selectedOrder.isReturned ? "completed" : ""}`}>
-                  <FaCheckCircle className="timeline-icon delivered" />
-                  <span>Delivered</span>
-                </div>
-                {selectedOrder.isReturnable && (
-                  <div className={`timeline-step ${selectedOrder.isReturned ? "active" : ""}`}>
-                    <FaUndo className="timeline-icon return" />
-                    <span>Returned</span>
+                {getTimelineSteps(selectedOrder).map((step, index) => (
+                  <div
+                    key={index}
+                    className={`timeline-step ${step.isActive ? "active" : step.isCompleted ? "completed" : ""}`}
+                  >
+                    {step.icon}
+                    <span>{step.status}</span>
                   </div>
-                )}
+                ))}
               </div>
             </div>
           ) : (
