@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from "react-router-dom";
 import Sidebar from "./components/Sidebar/Sidebar";
 import AdminNavbar from "./components/AdminNavbar/AdminNavbar";
-import AdminDashboard from "./components/AdminDashboard/AdminDashboard"; // Renamed
+import AdminDashboard from "./components/AdminDashboard/AdminDashboard";
 import ManageInventory from "./components/ManageInventory/ManageInventory";
 import UserManagement from "./components/UserManagement/UserManagement";
 import RequestList from "./components/RequestList/RequestList";
@@ -13,7 +13,7 @@ import NotFoundPage from "./pages/NotFoundPage/NotFoundPage";
 import ProfileManagement from "./components/ProfileManagement/ProfileManagement";
 import OrderTracking from "./components/OrderTracking/OrderTracking";
 import RequestForm from "./components/RequestForm/RequestForm";
-import { isAuthenticated, getUserRole, logout } from "./utils/auth";
+import { isAuthenticated, getUserRole } from "./utils/auth";
 
 const App = () => {
   return (
@@ -45,10 +45,10 @@ const MainLayout = () => {
       <div style={{ flex: 1 }}>
         {isAuth && !isAuthPage && <AdminNavbar />}
         <Routes>
+          <Route path="/" element={<ProtectedRoute element={<UserDashboard />} allowedRoles={["user"]} />} />
+          <Route path="/" element={<ProtectedRoute element={<AdminDashboard />} allowedRoles={["admin"]} />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/" element={<ProtectedRoute element={<AdminDashboard />} allowedRoles={["admin"]} />} />
-          <Route path="/" element={<ProtectedRoute element={<UserDashboard />} allowedRoles={["user"]} />} />
           <Route path="/admin-dashboard" element={<ProtectedRoute element={<AdminDashboard />} allowedRoles={["admin"]} />} />
           <Route path="/manage-inventory" element={<ProtectedRoute element={<ManageInventory />} allowedRoles={["admin"]} />} />
           <Route path="/user-management" element={<ProtectedRoute element={<UserManagement />} allowedRoles={["admin"]} />} />

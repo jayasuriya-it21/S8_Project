@@ -1,3 +1,4 @@
+// backend/models/Request.js
 const mongoose = require("mongoose");
 
 const requestSchema = new mongoose.Schema({
@@ -11,6 +12,7 @@ const requestSchema = new mongoose.Schema({
   requestDate: { type: Date, default: Date.now },
   status: { type: String, enum: ["Pending", "Approved", "Rejected"], default: "Pending" },
   trackingStatus: { type: String, enum: ["Pending", "Shipped", "Delivered"], default: "Pending" },
+  isReturned: { type: Boolean, default: false }, // New field for return status
 });
 
 module.exports = mongoose.model("Request", requestSchema);

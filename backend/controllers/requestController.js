@@ -37,19 +37,45 @@ const createRequest = async (req, res) => {
   }
 };
 
+
 const updateRequest = async (req, res) => {
   try {
     const request = await Request.findById(req.params.id);
-    if (req.body.status === "Approved" && request.status !== "Approved") {
+    if (!request) return res.status(404).json({ message: "Request not found" });
+
+    const { status, trackingStatus, isReturned } = req.body;
+
+    // Handle stock adjustments for status changes
+    if (status === "Approved" && request.status !== "Approved") {
       const product = await Product.findById(request.productId);
       product.stockRemaining -= request.quantity;
       await product.save();
+    } else if (status !== "Approved" && request.status === "Approved") {
+      const product = await Product.findById(request.productId);
+      product.stockRemaining += request.quantity;
+      await product.save();
     }
-    const updatedRequest = await Request.findByIdAndUpdate(req.params.id, req.body, { new: true });
+
+    // Handle stock restoration for returned items
+    if (isReturned && !request.isReturned && request.isReturnable && request.trackingStatus === "Delivered") {
+      const product = await Product.findById(request.productId);
+      product.stockRemaining += request.quantity;
+      await product.save();
+    }
+
+    const updatedRequest = await Request.findByIdAndUpdate(
+      req.params.id,
+      { status, trackingStatus, isReturned },
+      { new: true }
+    )
+      .populate("userId", "username")
+      .populate("productId", "name");
+
     res.json(updatedRequest);
   } catch (error) {
     res.status(400).json({ message: "Error updating request", error });
   }
 };
+
 
 module.exports = { getRequests, getUserRequests, createRequest, updateRequest };

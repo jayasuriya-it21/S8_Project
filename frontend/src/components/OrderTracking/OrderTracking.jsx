@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { FaBox, FaTruck, FaCheckCircle } from "react-icons/fa";
+import { FaBox, FaTruck, FaCheckCircle, FaUndo } from "react-icons/fa";
+import { useLocation } from "react-router-dom";
 import "./OrderTracking.css";
 
 const OrderTracking = () => {
   const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const role = localStorage.getItem("role");
+  const location = useLocation();
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -15,28 +19,61 @@ const OrderTracking = () => {
         const res = await axios.get(`http://localhost:5000${endpoint}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
-        setOrders(res.data.filter((order) => order.status === "Approved"));
+        const approvedOrders = res.data.filter((order) => order.status === "Approved");
+        setOrders(approvedOrders);
+        setFilteredOrders(approvedOrders);
+
+        const params = new URLSearchParams(location.search);
+        const orderId = params.get("orderId");
+        if (orderId) {
+          const orderToSelect = approvedOrders.find((order) => order._id === orderId);
+          if (orderToSelect) {
+            setSelectedOrder(orderToSelect);
+          }
+        }
       } catch (error) {
         console.error("Error fetching orders:", error);
       }
     };
     fetchOrders();
-  }, [role]);
+  }, [role, location]);
 
-  const handleStatusUpdate = async (id, newStatus) => {
+  const handleStatusUpdate = async (id, value) => {
     try {
+      const isReturnedUpdate = value === "Returned";
+      const trackingStatus = isReturnedUpdate ? "Delivered" : value;
+      const isReturned = isReturnedUpdate || (value === "Delivered" && orders.find(o => o._id === id)?.isReturned);
+
       await axios.put(
         `http://localhost:5000/api/requests/${id}`,
-        { trackingStatus: newStatus },
+        { trackingStatus, isReturned },
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
-      setOrders(orders.map((order) => (order._id === id ? { ...order, trackingStatus: newStatus } : order)));
+      const updatedOrders = orders.map((order) =>
+        order._id === id ? { ...order, trackingStatus, isReturned } : order
+      );
+      setOrders(updatedOrders);
+      setFilteredOrders(updatedOrders);
       if (selectedOrder && selectedOrder._id === id) {
-        setSelectedOrder({ ...selectedOrder, trackingStatus: newStatus });
+        setSelectedOrder({ ...selectedOrder, trackingStatus, isReturned });
       }
     } catch (error) {
       console.error("Error updating status:", error);
+      alert("Failed to update status.");
     }
+  };
+
+  const handleSearch = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+    const filtered = orders.filter(
+      (order) =>
+        (order.productId?.name?.toLowerCase() || "").includes(query) ||
+        (order.userId?.username?.toLowerCase() || "").includes(query) ||
+        order._id.toLowerCase().includes(query) ||
+        order._id.slice(-6).toLowerCase().includes(query)
+    );
+    setFilteredOrders(filtered);
   };
 
   const getStatusIcon = (status) => {
@@ -52,10 +89,19 @@ const OrderTracking = () => {
 
   return (
     <div className="order-tracking">
-      <h2 className="tracking-title">Order Tracking</h2>
+      <div className="tracking-header">
+        <h2 className="tracking-title">Order Tracking</h2>
+        <input
+          type="text"
+          placeholder="Search by product, username, or order ID"
+          value={searchQuery}
+          onChange={handleSearch}
+          className="search-input"
+        />
+      </div>
       <div className="tracking-container">
         <div className="order-list">
-          {orders.map((order) => (
+          {filteredOrders.map((order) => (
             <div
               key={order._id}
               className={`order-card ${selectedOrder?._id === order._id ? "selected" : ""}`}
@@ -65,24 +111,50 @@ const OrderTracking = () => {
                 {getStatusIcon(order.trackingStatus || "Pending")}
                 <h3>Order #{order._id.slice(-6)}</h3>
               </div>
-              <p><strong>Product:</strong> {order.productId.name}</p>
+              <p><strong>Product:</strong> {order.productId?.name || "Unknown"}</p>
               <p><strong>Quantity:</strong> {order.quantity}</p>
-              <p><strong>Status:</strong> {order.trackingStatus || "Pending"}</p>
-              {role === "admin" && (
-                <select
-                  value={order.trackingStatus || "Pending"}
-                  onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
-                  className="status-select"
-                  onClick={(e) => e.stopPropagation()} // Prevents card click
-                >
-                  <option value="Pending">Pending</option>
-                  <option value="Shipped">Shipped</option>
-                  <option value="Delivered">Delivered</option>
-                </select>
+              <p><strong>Tracking Status:</strong> {order.trackingStatus || "Pending"}</p>
+              {order.isReturnable && (
+                <p><strong>Returned:</strong> {order.isReturned ? "Yes" : "No"}</p>
+              )}
+              {(role === "admin" || (role === "user" && order.isReturnable)) && (
+                <div className="action-buttons" onClick={(e) => e.stopPropagation()}>
+                  {role === "admin" && (
+                    <>
+                      <button
+                        onClick={() => handleStatusUpdate(order._id, "Pending")}
+                        className={`status-btn pending ${order.trackingStatus === "Pending" ? "active" : ""}`}
+                      >
+                        Pending
+                      </button>
+                      <button
+                        onClick={() => handleStatusUpdate(order._id, "Shipped")}
+                        className={`status-btn shipped ${order.trackingStatus === "Shipped" ? "active" : ""}`}
+                      >
+                        Shipped
+                      </button>
+                      <button
+                        onClick={() => handleStatusUpdate(order._id, "Delivered")}
+                        className={`status-btn delivered ${order.trackingStatus === "Delivered" ? "active" : ""}`}
+                      >
+                        Delivered
+                      </button>
+                    </>
+                  )}
+                  {(role === "admin" || role === "user") && order.isReturnable && (
+                    <button
+                      onClick={() => handleStatusUpdate(order._id, "Returned")}
+                      className={`status-btn return ${order.isReturned ? "active" : ""}`}
+                      disabled={order.trackingStatus !== "Delivered" || order.isReturned}
+                    >
+                      {order.isReturned ? "Returned" : "Mark Returned"}
+                    </button>
+                  )}
+                </div>
               )}
             </div>
           ))}
-          {orders.length === 0 && (
+          {filteredOrders.length === 0 && (
             <div className="no-orders">No approved orders to track yet.</div>
           )}
         </div>
@@ -91,23 +163,51 @@ const OrderTracking = () => {
             <div className="details-card">
               <h3 className="details-title">Order #{selectedOrder._id.slice(-6)}</h3>
               <div className="details-info">
-                <p><strong>Product:</strong> {selectedOrder.productId.name}</p>
+                <p><strong>Username:</strong> {selectedOrder.userId?.username || "Unknown"}</p>
+                <p><strong>Product:</strong> {selectedOrder.productId?.name || "Unknown"}</p>
                 <p><strong>Quantity:</strong> {selectedOrder.quantity}</p>
+                <p><strong>Purpose:</strong> {selectedOrder.purpose}</p>
+                <p><strong>Returnable:</strong> {selectedOrder.isReturnable ? "Yes" : "No"}</p>
+                <p><strong>From Date:</strong> {new Date(selectedOrder.fromDate).toLocaleDateString()}</p>
+                <p><strong>To Date:</strong> {selectedOrder.isReturnable ? new Date(selectedOrder.toDate).toLocaleDateString() : "N/A"}</p>
                 <p><strong>Requested On:</strong> {new Date(selectedOrder.requestDate).toLocaleString()}</p>
+                <p><strong>Tracking Status:</strong> {selectedOrder.trackingStatus || "Pending"}</p>
+                {selectedOrder.isReturnable && (
+                  <p><strong>Returned:</strong> {selectedOrder.isReturned ? "Yes" : "No"}</p>
+                )}
               </div>
-              <div className="tracking-timeline">
-                <div className={`timeline-step ${selectedOrder.trackingStatus === "Pending" ? "active" : "completed"}`}>
-                  <FaBox className="timeline-icon" />
+              <div
+                className="tracking-timeline"
+                style={{
+                  '--step-index': selectedOrder
+                    ? selectedOrder.isReturned
+                      ? 3
+                      : selectedOrder.trackingStatus === "Delivered"
+                      ? 2
+                      : selectedOrder.trackingStatus === "Shipped"
+                      ? 1
+                      : 0
+                    : 0,
+                }}
+              >
+                <div className={`timeline-step ${selectedOrder.trackingStatus === "Pending" ? "active" : selectedOrder.trackingStatus ? "completed" : ""}`}>
+                  <FaBox className="timeline-icon pending" />
                   <span>Pending</span>
                 </div>
-                <div className={`timeline-step ${selectedOrder.trackingStatus === "Shipped" ? "active" : selectedOrder.trackingStatus === "Delivered" ? "completed" : ""}`}>
-                  <FaTruck className="timeline-icon" />
+                <div className={`timeline-step ${selectedOrder.trackingStatus === "Shipped" ? "active" : selectedOrder.trackingStatus === "Delivered" || selectedOrder.isReturned ? "completed" : ""}`}>
+                  <FaTruck className="timeline-icon shipped" />
                   <span>Shipped</span>
                 </div>
-                <div className={`timeline-step ${selectedOrder.trackingStatus === "Delivered" ? "active" : ""}`}>
-                  <FaCheckCircle className="timeline-icon" />
+                <div className={`timeline-step ${selectedOrder.trackingStatus === "Delivered" && !selectedOrder.isReturned ? "active" : selectedOrder.isReturned ? "completed" : ""}`}>
+                  <FaCheckCircle className="timeline-icon delivered" />
                   <span>Delivered</span>
                 </div>
+                {selectedOrder.isReturnable && (
+                  <div className={`timeline-step ${selectedOrder.isReturned ? "active" : ""}`}>
+                    <FaUndo className="timeline-icon return" />
+                    <span>Returned</span>
+                  </div>
+                )}
               </div>
             </div>
           ) : (
