@@ -151,7 +151,7 @@ const OrderTracking = () => {
                         onClick={() => handleStatusUpdate(order._id, "Shipped")}
                         className={`status-btn shipped ${order.trackingStatus === "Shipped" ? "active" : ""}`}
                       >
-                        Shipped
+                        Ready to Deliver
                       </button>
                       <button
                         onClick={() => handleStatusUpdate(order._id, "Delivered")}
