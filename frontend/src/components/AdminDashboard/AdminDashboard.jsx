@@ -6,19 +6,24 @@ import "./AdminDashboard.css";
 const AdminDashboard = () => {
   const [requestData, setRequestData] = useState([]);
   const [trackingData, setTrackingData] = useState([]);
+  const [lowStockProducts, setLowStockProducts] = useState([]); // New state for low-stock products
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [requestsRes, ordersRes] = await Promise.all([
+        const [requestsRes, ordersRes, inventoryRes] = await Promise.all([
           axios.get("http://localhost:5000/api/requests", {
             headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
           }),
           axios.get("http://localhost:5000/api/requests", {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          }),
+          axios.get("http://localhost:5000/api/products", { // Fetch inventory data
             headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
           }),
         ]);
 
+        // Request Stats
         const requestStats = [
           { name: "Pending", value: requestsRes.data.filter(r => r.status === "Pending").length, fill: "#f39c12" },
           { name: "Approved", value: requestsRes.data.filter(r => r.status === "Approved").length, fill: "#00b894" },
@@ -26,6 +31,7 @@ const AdminDashboard = () => {
         ];
         setRequestData(requestStats);
 
+        // Tracking Stats
         const trackingStats = ordersRes.data
           .filter(r => r.status === "Approved")
           .reduce((acc, order) => {
@@ -40,6 +46,11 @@ const AdminDashboard = () => {
           }, [])
           .sort((a, b) => new Date(a.date) - new Date(b.date));
         setTrackingData(trackingStats);
+
+        // Check for low stock products
+        const lowStock = inventoryRes.data.filter(product => product.stockRemaining < 20);
+        setLowStockProducts(lowStock);
+
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
       }
@@ -47,12 +58,30 @@ const AdminDashboard = () => {
     fetchData();
   }, []);
 
+  // Function to close the alert (optional)
+  const closeAlert = (productId) => {
+    setLowStockProducts(prev => prev.filter(product => product._id !== productId));
+  };
+
   return (
     <div className="admin-dashboard">
       <h2>Welcome, Admin</h2>
       <div className="dashboard-container">
+        {/* Low Stock Alerts */}
+        {lowStockProducts.length > 0 && (
+          <div className="low-stock-alerts">
+            {lowStockProducts.map(product => (
+              <div key={product._id} className="alert-box card">
+                <b><p>🔔Notification</p></b>
+                <p>⏳Low Stock Alert: <strong>{product.name}</strong> (ID: {product.productId}) has only <strong> {product.stockRemaining} </strong>units left, 🔄Kindly upadte it !</p>
+                <button onClick={() => closeAlert(product._id)} className="close-alert-btn">Dismiss</button>
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="charts-section">
-          <div className="chart-card card"> {/* Added global .card class */}
+          <div className="chart-card card">
             <h4>Request Status Distribution</h4>
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={requestData} margin={{ top: 20, right: 20, left: 0, bottom: 5 }}>
@@ -68,7 +97,7 @@ const AdminDashboard = () => {
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <div className="chart-card card"> {/* Added global .card class */}
+          <div className="chart-card card">
             <h4>Order Trends Over Time</h4>
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={trackingData} margin={{ top: 20, right: 20, left: 0, bottom: 5 }}>
@@ -93,7 +122,7 @@ const AdminDashboard = () => {
           <a href="/manage-inventory" className="dashboard-link">Manage Inventory</a>
           <a href="/user-management" className="dashboard-link">Manage Users</a>
           <a href="/request-list" className="dashboard-link">Manage Requests</a>
-          <a href="/order-tracking" className="dashboard-link">Track Orders</a>
+          <a href="/order-list" className="dashboard-link">Track Orders</a>
           <a href="/profile" className="dashboard-link">Profile</a>
         </div>
       </div>

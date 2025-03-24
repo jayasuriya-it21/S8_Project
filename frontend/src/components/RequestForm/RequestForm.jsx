@@ -249,7 +249,9 @@ const RequestForm = () => {
             <button onClick={closeImagePopup} className="close-btn">Close</button>
           </div>
         </div>
-      )}
+      )}     
+      <h1> </h1>
+            <strong><center><p>❗Please contact Consumable@bitsathy.ac.in to Add Unavailable product</p></center></strong>
     </div>
   );
 };

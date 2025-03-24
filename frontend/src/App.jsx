@@ -11,7 +11,8 @@ import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
 import NotFoundPage from "./pages/NotFoundPage/NotFoundPage";
 import ProfileManagement from "./components/ProfileManagement/ProfileManagement";
-import OrderTracking from "./components/OrderTracking/OrderTracking";
+import OrderList from "./components/OrderList/OrderList";
+import OrderDetails from "./components/OrderDetails/OrderDetails";
 import RequestForm from "./components/RequestForm/RequestForm";
 import { isAuthenticated, getUserRole } from "./utils/auth";
 
@@ -54,7 +55,8 @@ const MainLayout = () => {
           <Route path="/user-management" element={<ProtectedRoute element={<UserManagement />} allowedRoles={["admin"]} />} />
           <Route path="/request-list" element={<ProtectedRoute element={<RequestList />} allowedRoles={["admin"]} />} />
           <Route path="/profile" element={<ProtectedRoute element={<ProfileManagement />} allowedRoles={["admin", "user"]} />} />
-          <Route path="/order-tracking" element={<ProtectedRoute element={<OrderTracking />} allowedRoles={["admin", "user"]} />} />
+          <Route path="/order-list" element={<ProtectedRoute element={<OrderList />} allowedRoles={["admin", "user"]} />} />
+          <Route path="/order-details/:orderId" element={<ProtectedRoute element={<OrderDetails />} allowedRoles={["admin", "user"]} />} />
           <Route path="/user-dashboard" element={<ProtectedRoute element={<UserDashboard />} allowedRoles={["user"]} />} />
           <Route path="/request-product" element={<ProtectedRoute element={<RequestForm />} allowedRoles={["user"]} />} />
           <Route path="*" element={<NotFoundPage />} />

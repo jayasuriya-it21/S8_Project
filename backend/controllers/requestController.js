@@ -16,7 +16,8 @@ const getRequests = async (req, res) => {
 const getUserRequests = async (req, res) => {
   try {
     const requests = await Request.find({ userId: req.user.id })
-      .populate("productId", "name");
+      .populate("productId", "name") // Populate product name
+      .populate("userId", "username"); // Populate username
     res.json(requests);
   } catch (error) {
     res.status(500).json({ message: "Error fetching user requests", error });

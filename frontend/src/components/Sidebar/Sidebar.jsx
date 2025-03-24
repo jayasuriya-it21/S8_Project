@@ -24,7 +24,7 @@ const Sidebar = () => {
               <Link to="/request-list" className="sidebar-link" data-text="User Requests">User Requests</Link>
             </li>
             <li>
-              <Link to="/order-tracking" className="sidebar-link" data-text="Order Tracking">Order Tracking</Link>
+              <Link to="/order-list" className="sidebar-link" data-text="Order Tracking">Order Tracking</Link>
             </li>
             <li>
               <Link to="/profile" className="sidebar-link" data-text="Profile">Profile</Link>
@@ -39,7 +39,7 @@ const Sidebar = () => {
               <Link to="/request-product" className="sidebar-link" data-text="Request Product">Request Product</Link>
             </li>
             <li>
-              <Link to="/order-tracking" className="sidebar-link" data-text="Order Tracking">Order Tracking</Link>
+              <Link to="/order-list" className="sidebar-link" data-text="Order Tracking">Order Tracking</Link>
             </li>
             <li>
               <Link to="/profile" className="sidebar-link" data-text="Profile">Profile</Link>

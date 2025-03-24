@@ -1,118 +1,134 @@
 .user-management {
   padding: 20px;
-  max-width: 900px;
-  margin: auto;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .user-management-title {
-  text-align: center;
-  color: #333;
+  font-size: 24px;
   margin-bottom: 20px;
+  color: #2d3436;
+}
+
+.loading,
+.error {
+  text-align: center;
+  font-size: 16px;
+  margin: 20px 0;
+}
+
+.error {
+  color: #e74c3c;
 }
 
 .search-input {
   width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 10px;
   margin-bottom: 20px;
+  border: 1px solid #dfe6e9;
+  border-radius: 5px;
+  font-size: 16px;
 }
 
 .add-user-form {
   display: flex;
   gap: 10px;
-  flex-wrap: wrap;
-  justify-content: center;
   margin-bottom: 20px;
 }
 
 .form-input {
-  padding: 8px;
-  border: 1px solid #ccc;
+  padding: 10px;
+  border: 1px solid #dfe6e9;
   border-radius: 5px;
+  font-size: 16px;
   flex: 1;
 }
 
 .add-btn {
-  padding: 8px 12px;
-  border: none;
-  background-color: #28a745;
+  padding: 10px 20px;
+  background-color: #00b894;
   color: white;
-  cursor: pointer;
+  border: none;
   border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.add-btn:disabled {
+  background-color: #b2bec3;
+  cursor: not-allowed;
 }
 
 .user-table {
   width: 100%;
   border-collapse: collapse;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .user-table th,
 .user-table td {
-  border: 1px solid #ddd;
-  padding: 10px;
-  text-align: center;
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #dfe6e9;
 }
 
 .user-table th {
-  background-color: #f4f4f4;
-  color: #333;
+  background-color: #f1f3f5;
+  font-weight: 600;
+  color: #2d3436;
+}
+
+.user-table td {
+  color: #636e72;
+}
+
+/* Specific styling for User ID column */
+.user-table th:nth-child(1),
+.user-table td:nth-child(1) {
+  width: 200px; /* Adjust width to prevent overflow */
+  word-break: break-all; /* Break long IDs for readability */
 }
 
 .status-active {
-  color: green;
+  color: #00b894;
+  font-weight: 500;
 }
 
 .status-blocked {
-  color: red;
+  color: #e84393;
+  font-weight: 500;
+}
+
+.delete-btn,
+.block-btn,
+.unblock-btn {
+  padding: 5px 10px;
+  margin-right: 5px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
 }
 
 .delete-btn {
-  background-color: #dc3545;
+  background-color: #e84393;
   color: white;
-  padding: 6px 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-right: 5px;
 }
 
 .block-btn {
-  background-color: orange;
+  background-color: #e74c3c;
   color: white;
-  padding: 6px 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
 }
 
 .unblock-btn {
-  background-color: blue;
+  background-color: #00b894;
   color: white;
-  padding: 6px 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
 }
 
-.user-management {
-  padding: 20px;
-  max-width: 900px;
-  margin: auto;
+.delete-btn:disabled,
+.block-btn:disabled,
+.unblock-btn:disabled {
+  background-color: #b2bec3;
+  cursor: not-allowed;
 }
-
-.loading {
-  text-align: center;
-  color: #0984e3;
-  font-size: 1.2rem;
-  margin-bottom: 20px;
-}
-
-.error {
-  text-align: center;
-  color: #dc3545;
-  font-size: 1.2rem;
-  margin-bottom: 20px;
-}
-
-/* Existing styles remain unchanged */

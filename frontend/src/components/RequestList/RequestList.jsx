@@ -99,7 +99,9 @@ const RequestList = () => {
         </div>
       </div>
       <RequestTable requests={filteredRequests} handleAction={handleAction} view={view} />
+
     </div>
+   
   );
 };
 

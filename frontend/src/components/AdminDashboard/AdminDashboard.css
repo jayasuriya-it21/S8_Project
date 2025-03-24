@@ -55,7 +55,7 @@
   align-items: center;
   justify-content: center;
   padding: 15px 25px;
-  background: #fff;
+  background: #f9f9f9;
   color: #3498db; /* Matches global link color */
   text-decoration: none;
   border-radius: 10px;
@@ -71,7 +71,7 @@
 .dashboard-link:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-  color: #fff;
+  color: #ffffff;
   background: #3498db; /* Matches global link hover color */
 }
 

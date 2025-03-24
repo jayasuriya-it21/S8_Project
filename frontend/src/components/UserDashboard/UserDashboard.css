@@ -4,6 +4,42 @@
   min-height: 100vh;
   transition: margin-left 0.3s ease;
 }
+/* Existing CSS remains unchanged until .track-link */
+.request-link,
+.track-link {
+  color: #3498db;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.request-link:hover,
+.track-link:hover {
+  background: rgba(52, 152, 219, 0.1);
+  text-decoration: underline;
+}
+
+.track-btn {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #4dabf7, #339af0);
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(52, 152, 219, 0.2);
+}
+
+.track-btn:hover {
+  background: linear-gradient(135deg, #339af0, #228be6);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+}
+
+/* Rest of the existing CSS remains unchanged */
 
 .dashboard-title {
   margin-bottom: 40px;
