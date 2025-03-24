@@ -77,4 +77,6 @@ const updateProfile = async (req, res) => {
   }
 };
 
+
+
 module.exports = { getUsers, addUser, updateUser, deleteUser, getProfile, updateProfile };

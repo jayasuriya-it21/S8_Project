@@ -4,26 +4,32 @@ import axios from "axios";
 import "./Register.css";
 
 const Register = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [adminKey, setAdminKey] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    department: "",
+    password: "",
+    adminKey: "",
+  });
   const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    if (!name || !email || !password) {
-      alert("All fields are required.");
+    const { name, email, phone, department, password } = formData;
+
+    if (!name || !email || !phone || !department || !password) {
+      alert("All required fields must be filled.");
       return;
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/register", {
-        name,
-        email,
-        password,
-        adminKey, // Send adminKey only, let backend decide role
-      });
+      const response = await axios.post("http://localhost:5000/api/auth/register", formData);
       alert("Registration successful! Please log in.");
       console.log("Registered as:", response.data.role); // Debug role
       navigate("/login");
@@ -40,30 +46,55 @@ const Register = () => {
         <form onSubmit={handleRegister}>
           <input
             type="text"
+            name="name"
             placeholder="Full Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={formData.name}
+            onChange={handleChange}
             className="register-input"
+            required
           />
           <input
             type="email"
+            name="email"
             placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={formData.email}
+            onChange={handleChange}
             className="register-input"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="register-input"
+            required
           />
           <input
             type="text"
+            name="phone"
+            placeholder="Phone Number"
+            value={formData.phone}
+            onChange={handleChange}
+            className="register-input"
+            required
+          />
+          <input
+            type="text"
+            name="department"
+            placeholder="Department"
+            value={formData.department}
+            onChange={handleChange}
+            className="register-input"
+            required
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            className="register-input"
+            required
+          />
+          <input
+            type="text"
+            name="adminKey"
             placeholder="Admin Key (optional)"
-            value={adminKey}
-            onChange={(e) => setAdminKey(e.target.value)}
+            value={formData.adminKey}
+            onChange={handleChange}
             className="register-input"
           />
           <button type="submit" className="register-btn">Register</button>

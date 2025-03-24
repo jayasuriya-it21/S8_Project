@@ -56,6 +56,10 @@ const UserDashboard = () => {
   const closeImagePopup = () => {
     setSelectedImage(null);
   };
+  const formatOrderId = (id) => {
+    const shortId = id.slice(-6);
+    return `ORD-${shortId.toUpperCase()}`;
+  };
 
   return (
     <div className="user-dashboard">
@@ -159,12 +163,12 @@ const UserDashboard = () => {
             <tbody>
               {orders.map((order) => (
                 <tr key={order._id}>
-                  <td>{order._id.slice(-6)}</td>
+                  <td>{formatOrderId(order._id)}</td>
                   <td>{order.productId?.name || "Unknown"}</td>
                   <td>{order.quantity}</td>
                   <td>{order.status}</td>
                   <td>
-                    <a href={`/order-tracking?orderId=${order._id}`} className="track-link">Track</a>
+                    <a href={`/order-details/${order._id}`} className="track-link">Track</a>
                   </td>
                 </tr>
               ))}

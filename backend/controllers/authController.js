@@ -1,12 +1,15 @@
-// backend/controllers/authController.js
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
+
+dotenv.config();
 
 const register = async (req, res) => {
-  const { name, email, password, adminKey } = req.body;
+  const { name, email, phone, department, password, adminKey } = req.body;
 
-  // Determine role based on adminKey only
-  const userRole = adminKey === process.env.ADMIN_SECRET_KEY ? "admin" : "user";
+  if (!name || !email || !phone || !department || !password) {
+    return res.status(400).json({ message: "All required fields must be provided" });
+  }
 
   try {
     const existingUser = await User.findOne({ email });
@@ -14,25 +17,49 @@ const register = async (req, res) => {
       return res.status(400).json({ message: "Email already registered" });
     }
 
-    const user = new User({ name, email, password, role: userRole });
+    const role = adminKey === process.env.ADMIN_KEY ? "admin" : "user";
+    const user = new User({ name, email, phone, department, password, role });
+
     await user.save();
-    res.status(201).json({ message: "User registered", role: user.role }); // Return role for confirmation
+
+    res.status(201).json({
+      message: "User registered successfully",
+      role: user.role,
+    });
   } catch (error) {
-    res.status(400).json({ message: "Error registering user", error });
+    console.error("Registration error:", error);
+    res.status(500).json({ message: "Server error during registration" });
   }
 };
 
 const login = async (req, res) => {
   const { email, password } = req.body;
+
   try {
     const user = await User.findOne({ email });
-    if (!user || !(await user.comparePassword(password))) {
-      return res.status(401).json({ message: "Invalid credentials" });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid email or password" });
     }
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "6h" });
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+
+    if (user.status === "Blocked") {
+      return res.status(403).json({ message: "Your account is blocked" });
+    }
+
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
     res.json({ token, role: user.role });
   } catch (error) {
-    res.status(500).json({ message: "Error logging in", error });
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Server error during login" });
   }
 };
 
