@@ -6,9 +6,14 @@ import "./AdminDashboard.css";
 const AdminDashboard = () => {
   const [requestData, setRequestData] = useState([]);
   const [trackingData, setTrackingData] = useState([]);
-  const [lowStockProducts, setLowStockProducts] = useState([]); // New state for low-stock products
+  const [lowStockProducts, setLowStockProducts] = useState([]);
+  const [userName, setUserName] = useState(""); // State for username
 
   useEffect(() => {
+    // Retrieve username from localStorage
+    const storedName = localStorage.getItem("userName");
+    setUserName(storedName || "Admin"); // Fallback to "Admin" if not found
+
     const fetchData = async () => {
       try {
         const [requestsRes, ordersRes, inventoryRes] = await Promise.all([
@@ -18,7 +23,7 @@ const AdminDashboard = () => {
           axios.get("http://localhost:5000/api/requests", {
             headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
           }),
-          axios.get("http://localhost:5000/api/products", { // Fetch inventory data
+          axios.get("http://localhost:5000/api/products", {
             headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
           }),
         ]);
@@ -58,22 +63,20 @@ const AdminDashboard = () => {
     fetchData();
   }, []);
 
-  // Function to close the alert (optional)
   const closeAlert = (productId) => {
     setLowStockProducts(prev => prev.filter(product => product._id !== productId));
   };
 
   return (
     <div className="admin-dashboard">
-      <h2>Welcome, Admin</h2>
+    <center><h2>Welcome, {userName}</h2></center>   {/* Display dynamic username */}
       <div className="dashboard-container">
-        {/* Low Stock Alerts */}
         {lowStockProducts.length > 0 && (
           <div className="low-stock-alerts">
             {lowStockProducts.map(product => (
               <div key={product._id} className="alert-box card">
                 <b><p>🔔Notification</p></b>
-                <p>⏳Low Stock Alert: <strong>{product.name}</strong> (ID: {product.productId}) has only <strong> {product.stockRemaining} </strong>units left, 🔄Kindly upadte it !</p>
+                <p>⏳Low Stock Alert: <strong>{product.name}</strong> (ID: {product.productId}) has only <strong> {product.stockRemaining} </strong>units left, 🔄Kindly update it !</p>
                 <button onClick={() => closeAlert(product._id)} className="close-alert-btn">Dismiss</button>
               </div>
             ))}

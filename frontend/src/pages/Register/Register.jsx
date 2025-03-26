@@ -12,11 +12,15 @@ const Register = () => {
     password: "",
     adminKey: "",
   });
+  const [success, setSuccess] = useState(""); // Added success state
+  const [error, setError] = useState(""); // Added error state for better feedback
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setSuccess(""); // Clear success message on input change
+    setError(""); // Clear error message on input change
   };
 
   const handleRegister = async (e) => {
@@ -24,25 +28,30 @@ const Register = () => {
     const { name, email, phone, department, password } = formData;
 
     if (!name || !email || !phone || !department || !password) {
-      alert("All required fields must be filled.");
+      setError("All required fields must be filled.");
       return;
     }
 
     try {
       const response = await axios.post("http://localhost:5000/api/auth/register", formData);
-      alert("Registration successful! Please log in.");
+      setSuccess(<h5>"You have registered successfully! Redirecting to login..."</h5>); // Set success message
       console.log("Registered as:", response.data.role); // Debug role
-      navigate("/login");
+      setTimeout(() => {
+        navigate("/login"); // Navigate after a delay to show the success message
+      }, 2000); // 1-second delay
     } catch (error) {
       console.error("Registration error:", error.response?.data || error);
-      alert(error.response?.data?.message || "Registration failed!");
+      setError(error.response?.data?.message || "Registration failed!");
     }
   };
 
   return (
     <div className="register-container">
       <div className="register-card">
+        <center><h3>Welcome To BIT Dashboard..!</h3></center>
         <h2 className="register-heading">Register</h2>
+        {success && <div className="success-message">{success}</div>} {/* Display success message */}
+        {error && <div className="error-message">{error}</div>} {/* Display error message */}
         <form onSubmit={handleRegister}>
           <input
             type="text"

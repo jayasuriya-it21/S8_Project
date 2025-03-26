@@ -9,13 +9,15 @@ const Login = () => {
     email: "",
     password: "",
   });
-  const [error, setError] = useState(""); // Added for better error display
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    setError(""); // Clear error on input change
+    setError("");
+    setSuccess("");
   };
 
   const handleLogin = async (e) => {
@@ -30,7 +32,11 @@ const Login = () => {
     try {
       const res = await axios.post("http://localhost:5000/api/auth/login", { email, password });
       setAuthToken(res.data.token, res.data.role);
-      navigate(res.data.role === "admin" ? "/admin-dashboard" : "/user-dashboard");
+      localStorage.setItem("userName", res.data.name); // Store the name in localStorage
+      setSuccess("Login Successful! Redirecting...");
+      setTimeout(() => {
+        navigate(res.data.role === "admin" ? "/admin-dashboard" : "/user-dashboard");
+      }, 1000);
     } catch (error) {
       console.error("Login error:", error.response?.data || error);
       setError(error.response?.data?.message || "Login failed! Please try again.");
@@ -40,8 +46,10 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h2 className="login-heading">Login</h2>
+        <center><h3>Welcome To BIT Dashboard..!</h3></center>
+        <h2 className="login-heading">Login Page</h2>
         {error && <div className="error-message">{error}</div>}
+        {success && <div className="success-message">{success}</div>}
         <form onSubmit={handleLogin}>
           <input
             type="email"

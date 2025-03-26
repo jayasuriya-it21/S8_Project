@@ -7,6 +7,13 @@ const UserManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [editingUser, setEditingUser] = useState(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    department: "",
+  });
 
   useEffect(() => {
     fetchUsers();
@@ -61,6 +68,42 @@ const UserManagement = () => {
     }
   };
 
+  const handleEdit = (user) => {
+    setEditingUser(user._id);
+    setFormData({
+      name: user.name,
+      email: user.email,
+      phone: user.phone || "",
+      department: user.department,
+    });
+  };
+
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await axios.put(
+        `http://localhost:5000/api/users/${editingUser}`,
+        formData,
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+      setUsers(users.map((user) => (user._id === editingUser ? res.data : user)));
+      setEditingUser(null);
+    } catch (err) {
+      setError("Failed to update user");
+      console.error("Error updating user:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filteredUsers = users.filter(
     (user) =>
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -73,19 +116,10 @@ const UserManagement = () => {
     return str.match(/\d+/g)?.join('') || '';
   }
 
-
-  // Format User ID to resemble PAN card (e.g., ABCDE1234F)
   const formatUserId = (id) => {
-    if (!id || id.length < 10) return id; // Fallback for invalid IDs
-    // const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    if (!id || id.length < 10) return id;
     const digits = "0123456789";
-    const part1 = Array(3)
-      .fill()
-      .map(() => digits[Math.floor(Math.random() * digits.length)])
-      .join("");
-    const part2 = id.slice(-3); // Last 4 digits of MongoDB _id
-    const part3 = digits[Math.floor(Math.random() * digits.length)];
-    const part4 = getNumbersFromString(id).slice(-3); // Last 4 digits of MongoDB _id
+    const part4 = getNumbersFromString(id).slice(-3);
     return `BIT-US-${part4}`.toUpperCase();
   };
 
@@ -130,16 +164,12 @@ const UserManagement = () => {
                   {user.status}
                 </td>
                 <td>
+                  <button onClick={() => handleEdit(user)} className="edit-btn" disabled={loading}>
+                    Edit
+                  </button>
                   <button onClick={() => deleteUser(user._id)} className="delete-btn" disabled={loading}>
                     Delete
                   </button>
-                  {/* <button
-                    onClick={() => toggleUserStatus(user._id)}
-                    className={user.status === "Active" ? "block-btn" : "unblock-btn"}
-                    disabled={loading}
-                  >
-                    {user.status === "Active" ? "Block" : "Unblock"}
-                  </button> */}
                 </td>
               </tr>
             ))
@@ -152,6 +182,68 @@ const UserManagement = () => {
           )}
         </tbody>
       </table>
+
+      {editingUser && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Edit User</h3>
+            <form onSubmit={handleUpdate}>
+              <div className="form-group">
+                <label>Name:</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Email:</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Phone:</label>
+                <input
+                  type="text"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="form-group">
+                <label>Department:</label>
+                <input
+                  type="text"
+                  name="department"
+                  value={formData.department}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="modal-actions">
+                <button type="submit" className="save-btn" disabled={loading}>
+                  Save
+                </button>
+                <button
+                  type="button"
+                  className="cancel-btn"
+                  onClick={() => setEditingUser(null)}
+                  disabled={loading}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -9,8 +9,13 @@ const UserDashboard = () => {
   const [requestData, setRequestData] = useState([]);
   const [orderTrendData, setOrderTrendData] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [userName, setUserName] = useState(""); // New state for username
 
   useEffect(() => {
+    // Retrieve username from localStorage
+    const storedName = localStorage.getItem("userName");
+    setUserName(storedName || "User"); // Fallback to "User" if not found
+
     const fetchData = async () => {
       try {
         const [productsRes, ordersRes] = await Promise.all([
@@ -56,6 +61,7 @@ const UserDashboard = () => {
   const closeImagePopup = () => {
     setSelectedImage(null);
   };
+
   const formatOrderId = (id) => {
     const shortId = id.slice(-6);
     return `ORD-${shortId.toUpperCase()}`;
@@ -63,7 +69,7 @@ const UserDashboard = () => {
 
   return (
     <div className="user-dashboard">
-      <h2 className="dashboard-title">Welcome, User</h2>
+      <h2 className="dashboard-title">Welcome, {userName}</h2> {/* Display dynamic username */}
       <div className="dashboard-container">
         {/* Analytics Section */}
         <div className="dashboard-analytics">
