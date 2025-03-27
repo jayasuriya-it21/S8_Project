@@ -1,4 +1,3 @@
-// backend/routes/requestRoutes.js
 const express = require("express");
 const { getRequests, getUserRequests, createRequest, updateRequest } = require("../controllers/requestController");
 const { authMiddleware, adminMiddleware } = require("../middleware/authMiddleware");

@@ -1,4 +1,3 @@
-// backend/controllers/requestController.js
 const Request = require("../models/Request");
 const Product = require("../models/Product");
 
@@ -16,8 +15,8 @@ const getRequests = async (req, res) => {
 const getUserRequests = async (req, res) => {
   try {
     const requests = await Request.find({ userId: req.user.id })
-      .populate("productId", "name") // Populate product name
-      .populate("userId", "username"); // Populate username
+      .populate("productId", "name")
+      .populate("userId", "username");
     res.json(requests);
   } catch (error) {
     res.status(500).json({ message: "Error fetching user requests", error });
@@ -43,7 +42,7 @@ const updateRequest = async (req, res) => {
     const request = await Request.findById(req.params.id);
     if (!request) return res.status(404).json({ message: "Request not found" });
 
-    const { status, trackingStatus, isReturned } = req.body;
+    const { status, trackingStatus, isReturned, rejectionReason } = req.body;
 
     // Handle stock adjustments for status changes
     if (status) {
@@ -63,7 +62,7 @@ const updateRequest = async (req, res) => {
 
     // Handle stock restoration for returned items
     if (
-      isReturned !== undefined && // Only process if isReturned is provided
+      isReturned !== undefined &&
       isReturned &&
       !request.isReturned &&
       request.isReturnable &&
@@ -77,9 +76,10 @@ const updateRequest = async (req, res) => {
     const updatedRequest = await Request.findByIdAndUpdate(
       req.params.id,
       {
-        ...(status && { status }), // Only update status if provided
-        ...(trackingStatus && { trackingStatus }), // Only update trackingStatus if provided
-        ...(isReturned !== undefined && { isReturned }), // Only update isReturned if provided
+        ...(status && { status }),
+        ...(trackingStatus && { trackingStatus }),
+        ...(isReturned !== undefined && { isReturned }),
+        ...(rejectionReason && { rejectionReason }) // Add rejection reason if provided
       },
       { new: true }
     )
