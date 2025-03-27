@@ -1,19 +1,19 @@
 .request-list {
-  padding: 80px 40px 40px 40px; /* Top padding for fixed navbar */
-  margin-left: 250px; /* Space for sidebar */
+  padding: 80px 40px 40px 40px;
+  margin-left: 250px;
   min-height: 100vh;
   transition: margin-left 0.3s ease;
 }
 
 .request-list-header {
   max-width: 1200px;
-  margin: 0 auto 30px auto; /* Centered with spacing */
+  margin: 0 auto 30px auto;
   text-align: center;
 }
 
 .request-list-header h2 {
   margin-bottom: 20px;
-  background: linear-gradient(90deg, #3498db, #2ecc71); /* Matches navbar */
+  background: linear-gradient(90deg, #3498db, #2ecc71);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: fadeIn 0.5s ease-out;
@@ -23,50 +23,17 @@
   padding: 12px;
   width: 100%;
   max-width: 400px;
-  border: 1px solid #dfe6e9; /* Matches global input */
-  border-radius: 8px; /* Matches global input */
+  border: 1px solid #dfe6e9;
+  border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
   margin-bottom: 20px;
 }
 
 .search-input:focus {
-  border-color: #3498db; /* Matches global input focus */
-  box-shadow: 0 0 5px rgba(52, 152, 219, 0.3); /* Matches global input focus */
+  border-color: #3498db;
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
   outline: none;
-}
-
-.view-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.view-btn {
-  padding: 10px 20px;
-  background: #fff;
-  color: #34495e; /* Matches global heading */
-  border: 2px solid #3498db; /* Matches global link */
-  border-radius: 8px; /* Matches global button */
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-}
-
-.view-btn:hover {
-  background: #3498db; /* Matches global link */
-  color: #fff;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(52, 152, 219, 0.3);
-}
-
-.view-btn.active {
-  background: #3498db; /* Matches global link */
-  color: #fff;
-  border-color: #2980b9; /* Darker blue for active */
-  box-shadow: 0 6px 15px rgba(52, 152, 219, 0.5);
 }
 
 .request-table {
@@ -76,24 +43,24 @@
   border-collapse: collapse;
   background: #fff;
   border-radius: 12px;
-  overflow: hidden; /* Rounds corners */
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1); /* Matches global card */
+  overflow: hidden;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
 }
 
 .request-table:hover {
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); /* Subtle hover effect */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 
 .request-table th,
 .request-table td {
   padding: 15px;
   text-align: center;
-  border-bottom: 1px solid #dfe6e9; /* Matches global input border */
+  border-bottom: 1px solid #dfe6e9;
 }
 
 .request-table th {
-  background: linear-gradient(135deg, #2c3e50, #34495e); /* Matches navbar */
+  background: linear-gradient(135deg, #2c3e50, #34495e);
   color: #fff;
   font-weight: 600;
   text-transform: uppercase;
@@ -105,21 +72,22 @@
 }
 
 .request-table tr:hover {
-  background: #f1f3f5; /* Light hover effect */
+  background: #f1f3f5;
 }
 
 .action-buttons {
   display: flex;
   justify-content: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .approve-btn {
   padding: 8px 16px;
-  background: linear-gradient(135deg, #2ecc71, #27ae60); /* Matches save button */
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
   color: #fff;
   border: none;
-  border-radius: 8px; /* Matches global button */
+  border-radius: 8px;
   cursor: pointer;
   box-shadow: 0 3px 10px rgba(46, 204, 113, 0.3);
   transition: all 0.3s ease;
@@ -133,10 +101,10 @@
 
 .reject-btn {
   padding: 8px 16px;
-  background: linear-gradient(135deg, #e74c3c, #c0392b); /* Matches delete button */
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
   color: #fff;
   border: none;
-  border-radius: 8px; /* Matches global button */
+  border-radius: 8px;
   cursor: pointer;
   box-shadow: 0 3px 10px rgba(231, 76, 60, 0.3);
   transition: all 0.3s ease;
@@ -150,10 +118,10 @@
 
 .pending-btn {
   padding: 8px 16px;
-  background: linear-gradient(135deg, #f1c40f, #e67e22); /* Yellow-orange gradient */
+  background: linear-gradient(135deg, #f1c40f, #e67e22);
   color: #fff;
   border: none;
-  border-radius: 8px; /* Matches global button */
+  border-radius: 8px;
   cursor: pointer;
   box-shadow: 0 3px 10px rgba(241, 196, 15, 0.3);
   transition: all 0.3s ease;
@@ -163,6 +131,57 @@
   background: linear-gradient(135deg, #e67e22, #d35400);
   transform: translateY(-2px);
   box-shadow: 0 6px 15px rgba(230, 126, 34, 0.5);
+}
+
+.reject-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.reject-modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.reject-modal-content h3 {
+  margin-bottom: 15px;
+  color: #34495e;
+}
+
+.reject-modal-content textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #dfe6e9;
+  border-radius: 8px;
+  font-size: 1rem;
+  resize: vertical;
+  margin-bottom: 15px;
+  transition: border-color 0.3s ease;
+}
+
+.reject-modal-content textarea:focus {
+  border-color: #3498db;
+  outline: none;
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
 }
 
 /* Responsive Design */
@@ -184,27 +203,19 @@
 @media (max-width: 768px) {
   .request-list {
     padding: 70px 20px 20px 20px;
-    margin-left: 0; /* No sidebar on mobile */
+    margin-left: 0;
   }
 
   .request-table {
     display: block;
-    overflow-x: auto; /* Horizontal scroll for tables */
+    overflow-x: auto;
+    white-space: nowrap;
   }
 
   .request-table th,
   .request-table td {
     padding: 10px;
     font-size: 0.9rem;
-  }
-
-  .view-buttons {
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .view-btn {
-    padding: 8px 16px;
   }
 
   .approve-btn,
@@ -221,24 +232,13 @@
   }
 
   .request-list-header h2 {
-    font-size: 1.5rem; /* Adjusted for mobile */
+    font-size: 1.5rem;
   }
 
   .search-input {
     padding: 10px;
     font-size: 0.9rem;
     max-width: 100%;
-  }
-
-  .view-buttons {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .view-btn {
-    padding: 8px 12px;
-    font-size: 0.9rem;
-    width: 100%;
   }
 
   .request-table th,
@@ -261,7 +261,6 @@
   }
 }
 
-/* Reuse global fadeIn animation */
 @keyframes fadeIn {
   0% { opacity: 0; transform: translateY(-20px); }
   100% { opacity: 1; transform: translateY(0); }

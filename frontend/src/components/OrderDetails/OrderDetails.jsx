@@ -18,7 +18,7 @@ const OrderDetails = () => {
         const res = await axios.get(`http://localhost:5000${endpoint}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
-        const selectedOrder = res.data.find((o) => o._id === orderId && o.status === "Approved");
+        const selectedOrder = res.data.find((o) => o._id === orderId);
         if (selectedOrder) {
           setOrder(selectedOrder);
         } else {
@@ -39,12 +39,13 @@ const OrderDetails = () => {
       const trackingStatus = isReturnedUpdate ? "Delivered" : newTrackingStatus;
       const isReturned = isReturnedUpdate ? true : isDelivered ? order.isReturned : false;
 
+      const updateData = { trackingStatus, isReturned };
       await axios.put(
         `http://localhost:5000/api/requests/${order._id}`,
-        { trackingStatus, isReturned },
+        updateData,
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
-      setOrder({ ...order, trackingStatus, isReturned });
+      setOrder({ ...order, ...updateData });
     } catch (error) {
       console.error("Error updating status:", error);
       alert("Failed to update status.");
@@ -59,7 +60,7 @@ const OrderDetails = () => {
   const getTimelineSteps = (order) => {
     if (!order) return [];
     const steps = [
-      { status: "Pending", icon: <FaBox className="timeline-icon pending" />, isActive: order.trackingStatus === "Pending", isCompleted: order.trackingStatus },
+      { status: "Pending", icon: <FaBox className="timeline-icon pending" />, isActive: order.trackingStatus === "Pending", isCompleted: order.trackingStatus !== "Pending" },
       { status: "Shipped", icon: <FaTruck className="timeline-icon shipped" />, isActive: order.trackingStatus === "Shipped", isCompleted: order.trackingStatus === "Delivered" || order.isReturned },
       { status: "Delivered", icon: <FaCheckCircle className="timeline-icon delivered" />, isActive: order.trackingStatus === "Delivered" && !order.isReturned, isCompleted: order.isReturned },
     ];
@@ -88,9 +89,13 @@ const OrderDetails = () => {
     doc.text(`From Date: ${new Date(order.fromDate).toLocaleDateString()}`, 20, 100);
     doc.text(`To Date: ${order.isReturnable ? new Date(order.toDate).toLocaleDateString() : "N/A"}`, 20, 110);
     doc.text(`Requested On: ${new Date(order.requestDate).toLocaleString()}`, 20, 120);
-    doc.text(`Tracking Status: ${order.trackingStatus || "Pending"}`, 20, 130);
+    doc.text(`Status: ${order.status || "Pending"}`, 20, 130);
+    doc.text(`Tracking Status: ${order.trackingStatus || "Pending"}`, 20, 140);
+    if (order.status === "Rejected" && order.rejectionReason) {
+      doc.text(`Rejection Reason: ${order.rejectionReason}`, 20, 150);
+    }
     if (order.isReturnable) {
-      doc.text(`Returned: ${order.isReturned ? "Yes" : "No"}`, 20, 140);
+      doc.text(`Returned: ${order.isReturned ? "Yes" : "No"}`, 20, order.status === "Rejected" ? 160 : 150);
     }
     doc.save(`invoice_${formatOrderId(order._id)}.pdf`);
   };
@@ -119,12 +124,16 @@ const OrderDetails = () => {
             <p><strong>From Date:</strong> {new Date(order.fromDate).toLocaleDateString()}</p>
             <p><strong>To Date:</strong> {order.isReturnable ? new Date(order.toDate).toLocaleDateString() : "N/A"}</p>
             <p><strong>Requested On:</strong> {new Date(order.requestDate).toLocaleString()}</p>
+            <p><strong>Status:</strong> {order.status || "Pending"}</p>
             <p><strong>Tracking Status:</strong> {order.trackingStatus || "Pending"}</p>
+            {order.status === "Rejected" && order.rejectionReason && (
+              <p><strong>Rejection Reason:</strong> {order.rejectionReason}</p>
+            )}
             {order.isReturnable && (
               <p><strong>Returned:</strong> {order.isReturned ? "Yes" : "No"}</p>
             )}
           </div>
-          {(role === "admin" || (role === "user" && order.isReturnable)) && (
+          {order.status === "Approved" && (role === "admin" || (role === "user" && order.isReturnable)) && (
             <div className="action-buttons">
               {role === "admin" && (
                 <>
@@ -159,34 +168,36 @@ const OrderDetails = () => {
               )}
             </div>
           )}
-          <div
-            className={`tracking-timeline ${order.isReturnable ? "returnable" : "non-returnable"}`}
-            style={{
-              '--step-index': order.isReturnable
-                ? order.isReturned
-                  ? 3
+          {order.status === "Approved" && (
+            <div
+              className={`tracking-timeline ${order.isReturnable ? "returnable" : "non-returnable"}`}
+              style={{
+                '--step-index': order.isReturnable
+                  ? order.isReturned
+                    ? 3
+                    : order.trackingStatus === "Delivered"
+                    ? 2
+                    : order.trackingStatus === "Shipped"
+                    ? 1
+                    : 0
                   : order.trackingStatus === "Delivered"
                   ? 2
                   : order.trackingStatus === "Shipped"
                   ? 1
-                  : 0
-                : order.trackingStatus === "Delivered"
-                ? 2
-                : order.trackingStatus === "Shipped"
-                ? 1
-                : 0,
-            }}
-          >
-            {getTimelineSteps(order).map((step, index) => (
-              <div
-                key={index}
-                className={`timeline-step ${step.isActive ? "active" : step.isCompleted ? "completed" : ""}`}
-              >
-                {step.icon}
-                <span>{step.status}</span>
-              </div>
-            ))}
-          </div>
+                  : 0,
+              }}
+            >
+              {getTimelineSteps(order).map((step, index) => (
+                <div
+                  key={index}
+                  className={`timeline-step ${step.isActive ? "active" : step.isCompleted ? "completed" : ""}`}
+                >
+                  {step.icon}
+                  <span>{step.status}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
