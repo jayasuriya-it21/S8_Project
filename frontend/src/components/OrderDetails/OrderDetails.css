@@ -1,3 +1,6 @@
+/* OrderDetails.css */
+
+/* General page styling */
 .order-details-page {
   padding: 80px 40px 40px 40px;
   margin-left: 250px;
@@ -7,6 +10,40 @@
   justify-content: center;
   transition: margin-left 0.3s ease;
 }
+
+/* Container styling */
+.order-details-container {
+  max-width: 700px;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* Back button */
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 20px;
+  background: #e9ecef;
+  color: #086e58;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.back-btn:hover {
+  background: #e4d697;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Header styling */
 .order-details-header {
   display: flex;
   justify-content: space-between;
@@ -14,11 +51,21 @@
   margin-bottom: 30px;
 }
 
+.order-details-title {
+  font-size: 2.2rem;
+  color: #2c3e50;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 30px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Download button */
 .download-btn {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px;
+  padding: 9px 18px;
   border: none;
   border-radius: 20px;
   background: linear-gradient(135deg, #74c7d5, #56b4d3);
@@ -35,47 +82,18 @@
   box-shadow: 0 6px 15px rgba(86, 180, 211, 0.3);
 }
 
-/* Rest of the existing CSS remains unchanged */
-.order-details-container {
-  max-width: 700px;
-  width: 100%;
-}
-
-.back-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 20px;
-  background: #e9ecef;
-  color: #495057;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-bottom: 20px;
-}
-
-.back-btn:hover {
-  background: #dee2e6;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.order-details-title {
-  font-size: 2.2rem;
-  color: #2c3e50;
-  font-weight: 600;
-  text-align: center;
-  margin-bottom: 30px;
-  animation: fadeIn 0.5s ease-out;
-}
-
+/* Details card */
 .details-card {
-  background: #fff;
+  background: #ecdbdb;
   border-radius: 12px;
   padding: 30px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+}
+
+.details-card h4 {
+  font-size: 18px;
+  color: #007bff;
+  margin-bottom: 15px;
 }
 
 .details-info p {
@@ -91,6 +109,7 @@
   font-weight: 600;
 }
 
+/* Action buttons */
 .action-buttons {
   display: flex;
   gap: 12px;
@@ -126,7 +145,7 @@
   background: linear-gradient(135deg, #ff6b6b, #f03e3e);
 }
 
-.status-btn:hover:not(:disabled) {
+.status-btn:hover:not(.active):not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
 }
@@ -159,6 +178,7 @@
   box-shadow: none;
 }
 
+/* Tracking timeline */
 .tracking-timeline {
   display: flex;
   justify-content: space-between;
@@ -176,11 +196,19 @@
   transform: translateY(-50%);
   z-index: 0;
   border-radius: 2px;
-  background: linear-gradient(to right, #ffd43b, #4dabf7, #40c057);
+  background: linear-gradient(to right, #fffefa, #4dabf7, #40c057);
 }
 
 .tracking-timeline.returnable::before {
   background: linear-gradient(to right, #ffd43b, #4dabf7, #40c057, #ff6b6b);
+}
+
+.tracking-timeline.non-returnable::before {
+  background: linear-gradient(to right, #ffd43b, #4dabf7, #40c057);
+}
+
+.tracking-timeline.rejected::before {
+  background-color: #dc3545;
 }
 
 .timeline-step {
@@ -213,23 +241,42 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
+.timeline-icon.pending {
+  color: #ffaa00;
+}
+
+.timeline-icon.shipped {
+  color: #339af0;
+}
+
+.timeline-icon.delivered {
+  color: #2f9e44;
+}
+
+.timeline-icon.return {
+  color: #f03e3e;
+}
+
+.timeline-icon.rejected {
+  color: #ff0000;
+}
+
 .timeline-step.active .timeline-icon {
   transform: scale(1.2);
 }
 
-.timeline-step.active .timeline-icon.pending { color: #ffaa00; }
-.timeline-step.active .timeline-icon.shipped { color: #339af0; }
-.timeline-step.active .timeline-icon.delivered { color: #2f9e44; }
-.timeline-step.active .timeline-icon.return { color: #f03e3e; }
-
 .timeline-step.completed .timeline-icon {
   color: #40c057;
+  background-color: currentColor;
+  color: #ffffff;
 }
 
 .timeline-step span {
   font-weight: 500;
+  margin-top: 5px;
 }
 
+/* Loading state */
 .loading {
   text-align: center;
   color: #6c757d;

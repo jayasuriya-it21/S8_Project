@@ -99,25 +99,25 @@ const AdminDashboard = () => {
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
-          </div>
-          <div className="chart-card card">
-            <h4>Order Trends Over Time</h4>
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={trackingData} margin={{ top: 20, right: 20, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#dfe6e9" />
-                <XAxis dataKey="date" stroke="#2d3436" />
-                <YAxis stroke="#2d3436" />
-                <Tooltip contentStyle={{ background: "#fff", borderRadius: "8px", boxShadow: "0 2px 5px rgba(0,0,0,0.1)" }} />
-                <Line
-                  type="monotone"
-                  dataKey="orders"
-                  stroke="#00b894"
-                  strokeWidth={3}
-                  dot={{ r: 5, fill: "#00b894" }}
-                  activeDot={{ r: 8, fill: "#fff", stroke: "#00b894", strokeWidth: 2 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+                        </div>
+                        <div className="chart-container">
+                          <h4>Your Order Trends Over Time</h4>
+                          <ResponsiveContainer width="100%" height={250}>
+                            <LineChart data={trackingData} margin={{ top: 20, right: 20, left: 0, bottom: 5 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="#dfe6e9" />
+                              <XAxis dataKey="date" stroke="#2d3436" />
+                              <YAxis stroke="#2d3436" />
+                              <Tooltip contentStyle={{ background: "#fff", borderRadius: "8px", boxShadow: "0 2px 5px rgba(0,0,0,0.1)" }} />
+                              <Line
+                                type="monotone"
+                                dataKey="orders"
+                                stroke="#00b894"
+                                strokeWidth={3}
+                                dot={{ r: 5, fill: "#00b894" }}
+                                activeDot={{ r: 8, fill: "#fff", stroke: "#00b894", strokeWidth: 2 }}
+                              />
+                            </LineChart>
+                          </ResponsiveContainer>
           </div>
         </div>
 

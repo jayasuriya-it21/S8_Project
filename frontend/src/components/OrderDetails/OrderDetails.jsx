@@ -20,6 +20,10 @@ const OrderDetails = () => {
         });
         const selectedOrder = res.data.find((o) => o._id === orderId);
         if (selectedOrder) {
+          // If the order is rejected, set trackingStatus to "Rejected"
+          if (selectedOrder.status === "Rejected") {
+            selectedOrder.trackingStatus = "Rejected";
+          }
           setOrder(selectedOrder);
         } else {
           navigate("/order-list");
@@ -59,6 +63,11 @@ const OrderDetails = () => {
 
   const getTimelineSteps = (order) => {
     if (!order) return [];
+    if (order.status === "Rejected") {
+      return [
+        { status: "Rejected", icon: <FaBox className="timeline-icon rejected" />, isActive: true, isCompleted: false }
+      ];
+    }
     const steps = [
       { status: "Pending", icon: <FaBox className="timeline-icon pending" />, isActive: order.trackingStatus === "Pending", isCompleted: order.trackingStatus !== "Pending" },
       { status: "Shipped", icon: <FaTruck className="timeline-icon shipped" />, isActive: order.trackingStatus === "Shipped", isCompleted: order.trackingStatus === "Delivered" || order.isReturned },
@@ -78,7 +87,7 @@ const OrderDetails = () => {
   const downloadInvoice = () => {
     const doc = new jsPDF();
     doc.setFontSize(20);
-    doc.text("Invoice", 20, 20);
+    doc.text("BIT Consumable Details Invoice", 20, 20);
     doc.setFontSize(12);
     doc.text(`Order ID: ${formatOrderId(order._id)}`, 20, 40);
     doc.text(`Purchased By: ${order.userId?.username || "User"}`, 20, 50);
@@ -109,12 +118,13 @@ const OrderDetails = () => {
           <FaArrowLeft /> Back to Orders
         </button>
         <div className="order-details-header">
-          <h2 className="order-details-title">Order {formatOrderId(order._id)}</h2>
+          <h2 className="order-details-title">📦Order {formatOrderId(order._id)}</h2>
           <button className="download-btn" onClick={downloadInvoice}>
             <FaDownload /> Download Invoice
           </button>
         </div>
         <div className="details-card">
+          <h4>✅Your Order Details</h4>
           <div className="details-info">
             <p><strong>Username:</strong> {order.userId?.username || "User"}</p>
             <p><strong>Product:</strong> {order.productId?.name || "Unknown"}</p>
@@ -168,7 +178,7 @@ const OrderDetails = () => {
               )}
             </div>
           )}
-          {order.status === "Approved" && (
+          {order.status !== "Rejected" && order.status === "Approved" && (
             <div
               className={`tracking-timeline ${order.isReturnable ? "returnable" : "non-returnable"}`}
               style={{
@@ -187,6 +197,19 @@ const OrderDetails = () => {
                   : 0,
               }}
             >
+              {getTimelineSteps(order).map((step, index) => (
+                <div
+                  key={index}
+                  className={`timeline-step ${step.isActive ? "active" : step.isCompleted ? "completed" : ""}`}
+                >
+                  {step.icon}
+                  <span>{step.status}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {order.status === "Rejected" && (
+            <div className="tracking-timeline rejected">
               {getTimelineSteps(order).map((step, index) => (
                 <div
                   key={index}

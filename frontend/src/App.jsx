@@ -14,6 +14,7 @@ import ProfileManagement from "./components/ProfileManagement/ProfileManagement"
 import OrderList from "./components/OrderList/OrderList";
 import OrderDetails from "./components/OrderDetails/OrderDetails";
 import RequestForm from "./components/RequestForm/RequestForm";
+import YourOrders from "./components/YourOrders/YourOrders"
 import { isAuthenticated, getUserRole } from "./utils/auth";
 
 const App = () => {
@@ -59,6 +60,7 @@ const MainLayout = () => {
           <Route path="/order-details/:orderId" element={<ProtectedRoute element={<OrderDetails />} allowedRoles={["admin", "user"]} />} />
           <Route path="/user-dashboard" element={<ProtectedRoute element={<UserDashboard />} allowedRoles={["user"]} />} />
           <Route path="/request-product" element={<ProtectedRoute element={<RequestForm />} allowedRoles={["user"]} />} />
+          <Route path="/your-orders" element={<ProtectedRoute element={<YourOrders />} allowedRoles={["user"]} />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>

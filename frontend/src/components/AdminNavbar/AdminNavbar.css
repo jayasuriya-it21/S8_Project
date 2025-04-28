@@ -222,3 +222,17 @@
   .navbar {
     animation: slideDown 0.6s ease-out;
   }
+  
+.navbar-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navbar-profile-image {
+  width: 58px; 
+  height: 58px;
+  border-radius: 44%; 
+  object-fit: cover; 
+  border: 2px solid #3dae33; 
+}

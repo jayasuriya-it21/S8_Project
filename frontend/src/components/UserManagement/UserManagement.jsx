@@ -14,6 +14,8 @@ const UserManagement = () => {
     phone: "",
     department: "",
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
 
   useEffect(() => {
     fetchUsers();
@@ -109,11 +111,29 @@ const UserManagement = () => {
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (user.phone && user.phone.includes(searchQuery)) ||
-      user.department.toLowerCase().includes(searchQuery.toLowerCase())
+      user.department.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (user.role && user.role.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
+  // Pagination logic
+  const totalPages = Math.ceil(filteredUsers.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const paginatedUsers = filteredUsers.slice(startIndex, startIndex + rowsPerPage);
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
   function getNumbersFromString(str) {
-    return str.match(/\d+/g)?.join('') || '';
+    return str.match(/\d+/g)?.join("") || "";
   }
 
   const formatUserId = (id) => {
@@ -129,7 +149,7 @@ const UserManagement = () => {
         <h2 className="user-management-title">User Management</h2>
         <input
           type="text"
-          placeholder="Search by Name, Email, Phone, or Department"
+          placeholder="Search by Name, Email, Phone, Department, or Role"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="search-input"
@@ -147,27 +167,41 @@ const UserManagement = () => {
             <th>Email</th>
             <th>Phone</th>
             <th>Department</th>
+            <th>Role</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {filteredUsers.length > 0 ? (
-            filteredUsers.map((user) => (
+          {paginatedUsers.length > 0 ? (
+            paginatedUsers.map((user) => (
               <tr key={user._id}>
                 <td className="user-id">{formatUserId(user._id)}</td>
                 <td>{user.name}</td>
                 <td>{user.email}</td>
                 <td>{user.phone || "N/A"}</td>
                 <td>{user.department}</td>
-                <td className={user.status === "Active" ? "status-active" : "status-blocked"}>
+                <td>{user.role || "N/A"}</td>
+                <td
+                  className={
+                    user.status === "Active" ? "status-active" : "status-blocked"
+                  }
+                >
                   {user.status}
                 </td>
                 <td>
-                  <button onClick={() => handleEdit(user)} className="edit-btn" disabled={loading}>
+                  <button
+                    onClick={() => handleEdit(user)}
+                    className="edit-btn"
+                    disabled={loading}
+                  >
                     Edit
                   </button>
-                  <button onClick={() => deleteUser(user._id)} className="delete-btn" disabled={loading}>
+                  <button
+                    onClick={() => deleteUser(user._id)}
+                    className="delete-btn"
+                    disabled={loading}
+                  >
                     Delete
                   </button>
                 </td>
@@ -175,13 +209,33 @@ const UserManagement = () => {
             ))
           ) : (
             <tr>
-              <td colSpan="7" className="no-users">
+              <td colSpan="8" className="no-users">
                 No matching users found
               </td>
             </tr>
           )}
         </tbody>
       </table>
+
+      <div className="pagination">
+        <button
+          onClick={handlePreviousPage}
+          className="pagination-btn"
+          disabled={currentPage === 1 || loading}
+        >
+          Previous
+        </button>
+        <span className="pagination-info">
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          onClick={handleNextPage}
+          className="pagination-btn"
+          disabled={currentPage === totalPages || loading}
+        >
+          Next
+        </button>
+      </div>
 
       {editingUser && (
         <div className="modal-overlay">

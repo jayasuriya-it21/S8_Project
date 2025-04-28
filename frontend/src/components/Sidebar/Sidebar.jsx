@@ -39,6 +39,9 @@ const Sidebar = () => {
               <Link to="/request-product" className="sidebar-link" data-text="Request Product">Request Product</Link>
             </li>
             <li>
+              <Link to="/Your-Orders" className="sidebar-link" data-text="Request Product">Your Orders</Link>
+            </li>
+            <li>
               <Link to="/order-list" className="sidebar-link" data-text="Order Tracking">Order Tracking</Link>
             </li>
             <li>

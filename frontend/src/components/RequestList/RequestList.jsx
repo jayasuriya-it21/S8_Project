@@ -5,10 +5,13 @@ import "./RequestList.css";
 const RequestList = () => {
   const [requests, setRequests] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All"); // New state for status filter
+  const [statusFilter, setStatusFilter] = useState("All");
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [currentRequestId, setCurrentRequestId] = useState(null);
   const [rejectReason, setRejectReason] = useState("");
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 5;
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -86,19 +89,36 @@ const RequestList = () => {
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value.toLowerCase());
+    setCurrentPage(1); // Reset page after search
   };
 
-  // Filter requests based on both search query and status
   const displayedRequests = requests.filter((req) => {
     const matchesSearch =
       (req.userId?.username?.toLowerCase() || "").includes(searchQuery) ||
-      (req.productId?.name?.toLowerCase() || "").includes(searchQuery);
-    
+      (req.productId?.name?.toLowerCase() || "").includes(searchQuery) ||
+      (req._id?.toLowerCase() || "").includes(searchQuery);
+
     const matchesStatus = 
       statusFilter === "All" || req.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
+
+  const totalPages = Math.ceil(displayedRequests.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const paginatedRequests = displayedRequests.slice(startIndex, startIndex + rowsPerPage);
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
 
   return (
     <div className="request-list">
@@ -114,7 +134,7 @@ const RequestList = () => {
           />
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
             className="status-filter"
           >
             <option value="All">All Status</option>
@@ -125,7 +145,27 @@ const RequestList = () => {
         </div>
       </div>
       
-      <RequestTable requests={displayedRequests} handleAction={handleAction} />
+      <RequestTable requests={paginatedRequests} handleAction={handleAction} />
+
+      <div className="pagination">
+        <button
+          onClick={handlePreviousPage}
+          className="pagination-btn"
+          disabled={currentPage === 1}
+        >
+          Previous
+        </button>
+        <span className="pagination-info">
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          onClick={handleNextPage}
+          className="pagination-btn"
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </button>
+      </div>
 
       {showRejectModal && (
         <div className="reject-modal">
@@ -155,10 +195,16 @@ const RequestList = () => {
   );
 };
 
+const formatOrderId = (id) => {
+  const shortId = id.slice(-6);
+  return `ORD-${shortId.toUpperCase()}`;
+};
+
 const RequestTable = ({ requests, handleAction }) => (
   <table className="request-table">
     <thead>
       <tr>
+        <th>Order ID</th>
         <th>Username</th>
         <th>Product</th>
         <th>Quantity</th>
@@ -176,6 +222,7 @@ const RequestTable = ({ requests, handleAction }) => (
       {requests.length > 0 ? (
         requests.map((request) => (
           <tr key={request._id}>
+            <td>{formatOrderId(request._id)}</td>
             <td>{request.userId?.username || "Unknown"}</td>
             <td>{request.productId?.name || "Unknown"}</td>
             <td>{request.quantity}</td>
@@ -209,7 +256,7 @@ const RequestTable = ({ requests, handleAction }) => (
         ))
       ) : (
         <tr>
-          <td colSpan="11" style={{ textAlign: "center", padding: "20px", color: "#7f8c8d" }}>
+          <td colSpan="12" style={{ textAlign: "center", padding: "20px", color: "#7f8c8d" }}>
             No requests found.
           </td>
         </tr>
